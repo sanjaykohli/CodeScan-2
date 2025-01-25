@@ -1,21 +1,211 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap');
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --color-primary: #1c8fd1;
+  --color-secondary: #ffcc00;
+  --color-background: #f5f7fa;
+  --color-text-dark: #333;
+  --color-text-light: #ffffff;
+  --color-success: #2ecc71;
+  --color-danger: #e74c3c;
+  --color-warning: #f39c12;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
 }
 
 body {
-  color: var(--foreground);
-  background: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: 'Inter', sans-serif;
+  background-color: var(--color-background);
+  color: var(--color-text-dark);
+  line-height: 1.6;
+}
+
+/* Navbar Styling */
+.navbar {
+  background-color: var(--color-primary);
+  color: var(--color-text-light);
+  padding: 15px 30px;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 100;
+}
+
+.navbar-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.navbar-logo {
+  display: flex;
+  align-items: center;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--color-text-light);
+  text-decoration: none;
+}
+
+.navbar-logo-icon {
+  margin-right: 10px;
+}
+
+.navbar-links {
+  display: flex;
+  gap: 20px;
+}
+
+.navbar-link {
+  display: flex;
+  align-items: center;
+  color: var(--color-text-light);
+  text-decoration: none;
+  transition: color 0.3s;
+}
+
+.navbar-link:hover {
+  color: var(--color-secondary);
+}
+
+.navbar-link-icon {
+  margin-right: 5px;
+}
+
+/* Page Container */
+.page-container {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.content-wrapper {
+  flex-grow: 1;
+  padding: 80px 20px 20px;
+  max-width: 800px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+/* Cards */
+.code-checker-card,
+.results-card,
+.info-card {
+  background-color: white;
+  border-radius: 10px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  padding: 30px;
+  margin-bottom: 20px;
+}
+
+.page-title {
+  display: flex;
+  align-items: center;
+  margin-bottom: 20px;
+  font-size: 1.8rem;
+}
+
+.title-icon {
+  margin-right: 10px;
+  color: var(--color-primary);
+}
+
+/* Textarea */
+.code-textarea {
+  width: 100%;
+  min-height: 200px;
+  padding: 15px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-family: 'Courier New', monospace;
+  resize: vertical;
+}
+
+/* Buttons */
+.check-security-btn {
+  width: 100%;
+  padding: 12px;
+  background-color: var(--color-primary);
+  color: var(--color-text-light);
+  border: none;
+  border-radius: 8px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.check-security-btn:hover {
+  background-color: var(--color-secondary);
+}
+
+.check-security-btn:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+
+/* Results Styling */
+.results-summary {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.security-score {
+  font-size: 1.5rem;
+  font-weight: bold;
+}
+
+.score-low { color: var(--color-success); }
+.score-medium { color: var(--color-warning); }
+.score-high { color: var(--color-danger); }
+
+.risk-label {
+  padding: 5px 10px;
+  border-radius: 5px;
+  color: white;
+}
+
+.low-risk { background-color: var(--color-success); }
+.medium-risk { background-color: var(--color-warning); }
+.high-risk { background-color: var(--color-danger); }
+
+/* Issues List */
+.issues-list {
+  list-style-type: none;
+}
+
+.issue-item {
+  display: flex;
+  align-items: center;
+  margin-bottom: 10px;
+  color: var(--color-danger);
+}
+
+.issue-icon {
+  margin-right: 10px;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .navbar {
+    padding: 15px;
+  }
+
+  .navbar-links {
+    gap: 10px;
+  }
+
+  .content-wrapper {
+    padding: 80px 10px 20px;
+  }
 }
