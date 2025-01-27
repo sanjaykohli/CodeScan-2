@@ -1,6 +1,6 @@
 // const { GoogleGenerativeAI } = require("@google/generative-ai");
 
-// const genAI = new GoogleGenerativeAI("AIzaSyAExTmn-RFAkjiuTkdx0uOA03sMNnDQiI0");
+// const genAI = new GoogleGenerativeAI("API_Key");
 // const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
 // export default async function handler(req, res) {
