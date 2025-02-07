@@ -36,7 +36,7 @@ The tool performs checks for:
 
 ## Installation
 ```bash
-git clone https://github.com/sanjaykohli/Secure_checker.git
+git clone https://github.com/sanjaykohli/CodeScan.git
 cd Secure_checker
 npm install
 npm run dev
