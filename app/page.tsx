@@ -1,6 +1,6 @@
 "use client";
 import { useState } from "react";
-import { ShieldCheck, AlertTriangle, CodeIcon } from "lucide-react";
+import { ShieldCheck, AlertTriangle, CodeIcon, FileWarning } from "lucide-react";
 import Navbar from "./components/Navbar";
 
 export default function Home() {
@@ -8,7 +8,8 @@ export default function Home() {
   const [result, setResult] = useState<{
     securityScore: number;
     report: string[];
-    severityLevel: 'Low' | 'Medium' | 'High'
+    severityLevel: 'Low' | 'Medium' | 'High';
+    vulnerabilities?: any[];
   } | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
 
@@ -35,6 +36,11 @@ export default function Home() {
       });
     } catch (error) {
       console.error("Error:", error);
+      setResult({
+        securityScore: 0,
+        report: ["Failed to analyze code. Please try again."],
+        severityLevel: 'High'
+      });
     } finally {
       setLoading(false);
     }
@@ -52,7 +58,8 @@ export default function Home() {
             className="code-textarea"
             value={code}
             onChange={(e) => setCode(e.target.value)}
-            placeholder="Paste your code here for security analysis..."
+            placeholder="Paste your code here for comprehensive security analysis..."
+            rows={10}
           />
           <button
             onClick={handleCheck}
@@ -66,7 +73,7 @@ export default function Home() {
         {result && (
           <div className="results-card">
             <h3 className="results-title">
-              <AlertTriangle className="results-icon" /> Security Analysis Results
+              <FileWarning className="results-icon" /> Detailed Security Analysis
             </h3>
             <div className="results-summary">
               <p className={`security-score ${
@@ -79,33 +86,27 @@ export default function Home() {
                 {result.severityLevel} Risk
               </span>
             </div>
-            <ul className="issues-list">
-              {result.report.map((issue, index) => (
-                <li key={index} className="issue-item">
-                  <AlertTriangle className="issue-icon" size={18} />
-                  {issue}
-                </li>
-              ))}
-            </ul>
+            <div className="issues-container">
+              <h4>Detected Vulnerabilities:</h4>
+              {result.report.length === 0 ? (
+                <p className="no-issues">No significant security issues detected.</p>
+              ) : (
+                <ul className="issues-list">
+                  {result.report.map((issue, index) => (
+                    <li key={index} className="issue-item">
+                      <AlertTriangle className="issue-icon" size={18} />
+                      <pre className="issue-details">{issue}</pre>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
           </div>
         )}
       </div>
     </div>
   );
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

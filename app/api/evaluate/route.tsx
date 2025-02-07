@@ -6,7 +6,14 @@ interface SecurityCheck {
   message: string;
   severity: 'low' | 'medium' | 'high';
   category: 'code' | 'security' | 'performance';
-  impact: number; // Impact score for each violation
+  impact: number;
+  remediation: string;
+}
+
+interface VulnerabilityDetection {
+  line: number;
+  lineContent: string;
+  matchedPattern: string;
 }
 
 export async function POST(req: Request) {
@@ -23,107 +30,108 @@ export async function POST(req: Request) {
 
   const securityChecks: SecurityCheck[] = [
     {
-      name: "Unsafe Functions",
-      regex: /eval|exec|Function\(|os\.system|subprocess\.Popen|child_process|shell\.exec|dangerouslySetInnerHTML/i,
-      message: "Critical: Unsafe function detected that could allow remote code execution. These functions are strictly prohibited in secure environments.",
+      name: "Remote Code Execution",
+      regex: /eval|exec|Function\(|os\.system|subprocess\.Popen|child_process|shell\.exec/i,
+      message: "Remote Code Execution Vulnerability",
       severity: 'high',
       category: 'security',
-      impact: 15
+      impact: 20,
+      remediation: "Avoid using eval, exec, or system commands. Use safe alternatives like JSON.parse() for parsing or specific library functions."
     },
     {
-      name: "SQL Injection Risk",
+      name: "SQL Injection",
       regex: /(SELECT|INSERT|DELETE|UPDATE|DROP|UNION|ALTER).*(`|\$\{|\$|'|\s*\+\s*.*['"]|\${.*})/i,
-      message: "Critical: SQL injection vulnerability detected. Use prepared statements and ORM libraries for database operations.",
+      message: "SQL Injection Vulnerability",
       severity: 'high',
       category: 'security',
-      impact: 15
+      impact: 18,
+      remediation: "Use parameterized queries, prepared statements, or ORM libraries. Never concatenate user input directly into SQL queries."
     },
     {
       name: "Sensitive Data Exposure",
       regex: /(password|secret|api[_-]?key|token|private[_-]?key|auth|bearer|jwt|ssh[_-]?key)[\s]*[=:][\s]*['"`][^'"`]+['"`]/i,
-      message: "Critical: Sensitive data exposed in plaintext. Use environment variables and secure vaults.",
+      message: "Sensitive Data Exposure",
       severity: 'high',
       category: 'security',
-      impact: 12
+      impact: 15,
+      remediation: "Use environment variables, secure vaults, or encryption. Never hardcode sensitive information."
     },
     {
-      name: "Hardcoded Credentials",
-      regex: /(credentials|config)[\s]*[=:][\s]*{[\s\S]*?(password|secret|key)[\s\S]*?}/i,
-      message: "Critical: Hardcoded credentials detected. Use secure credential management systems.",
+      name: "XSS Vulnerability",
+      regex: /innerHTML|outerHTML|document\.write|\$\(['"]*.*['"]*\)\.html\(|dangerouslySetInnerHTML/i,
+      message: "Cross-Site Scripting (XSS) Vulnerability",
       severity: 'high',
       category: 'security',
-      impact: 12
-    },
-    {
-      name: "Debugging Statements",
-      regex: /console\.(log|debug|info|warn|error)|print[\s]*\(|alert\(|debugger/i,
-      message: "Warning: Debug statements found in production code. Remove all debugging before deployment.",
-      severity: 'medium',
-      category: 'performance',
-      impact: 8
-    },
-    {
-      name: "Insufficient Error Handling",
-      regex: /catch[\s]*\(.*\)[\s]*{[\s]*}|catch[\s]*\(.*\)[\s]*{[\s]*console\.|catch[\s]*\(.*\)[\s]*{[\s]*return/i,
-      message: "Warning: Empty or insufficient error handling detected. Implement proper error handling and logging.",
-      severity: 'medium',
-      category: 'code',
-      impact: 8
-    },
-    {
-      name: "Insecure Dependencies",
-      regex: /import[\s]+.*?(requests|urllib|http|fs|crypto)[\s]+from|require\(['"](request|http|fs|crypto)['"]|import\s+{[\s\S]*?}\s+from\s+['"]express['"]|import\s+express\s+from\s+['"]express['"]/i,
-      message: "Warning: Potentially vulnerable library usage detected. Ensure latest security patches are applied.",
-      severity: 'medium',
-      category: 'security',
-      impact: 10
+      impact: 16,
+      remediation: "Use safe DOM manipulation methods. Sanitize and escape user inputs. Use libraries like DOMPurify for input sanitization."
     },
     {
       name: "Weak Cryptography",
       regex: /MD5|SHA1|DES|RC4|createHash\(['"](md5|sha1)['"]\)|crypto\.createCipher\(['"](des|rc4)['"]\)/i,
-      message: "Critical: Weak cryptographic methods detected. Use strong algorithms (SHA-256, AES) and proper key lengths.",
+      message: "Weak Cryptographic Method",
       severity: 'high',
       category: 'security',
-      impact: 12
+      impact: 14,
+      remediation: "Use modern cryptographic algorithms like SHA-256, AES-256. Prefer built-in crypto libraries with strong defaults."
     },
     {
-      name: "Insecure Random Values",
-      regex: /Math\.random\(\)|new Random\(\)|random\.|rand\(/i,
-      message: "Warning: Insecure random number generation. Use cryptographically secure methods.",
+      name: "Insecure Deserialization",
+      regex: /JSON\.parse\(|\beval\(|JSON\.stringify\(/i,
+      message: "Potential Insecure Deserialization",
       severity: 'medium',
       category: 'security',
-      impact: 8
+      impact: 12,
+      remediation: "Use safe parsing methods. Validate and sanitize input before parsing. Avoid eval() completely."
     },
     {
-      name: "Directory Traversal",
+      name: "Debug Statements",
+      regex: /console\.(log|debug|info|warn|error)|print[\s]*\(|alert\(|debugger/i,
+      message: "Production Debug Statements",
+      severity: 'low',
+      category: 'performance',
+      impact: 5,
+      remediation: "Remove all console logs and debugging statements before production deployment."
+    },
+    {
+      name: "Path Traversal",
       regex: /\.\.\//,
-      message: "Critical: Potential directory traversal vulnerability detected. Use path sanitization.",
+      message: "Potential Path Traversal Vulnerability",
       severity: 'high',
       category: 'security',
-      impact: 10
-    },
-    {
-      name: "XSS Vulnerabilities",
-      regex: /innerHTML|outerHTML|document\.write|\$\(['"]*.*['"]*\)\.html\(|dangerouslySetInnerHTML/i,
-      message: "Critical: Potential XSS vulnerability detected. Use safe DOM manipulation methods.",
-      severity: 'high',
-      category: 'security',
-      impact: 12
+      impact: 15,
+      remediation: "Validate and sanitize file paths. Use built-in path libraries to prevent directory traversal."
     }
   ];
 
   const performSecurityAnalysis = (code: string) => {
-    const report: string[] = [];
+    const lines = code.split('\n');
+    const vulnerabilities: Array<{
+      check: SecurityCheck;
+      detections: VulnerabilityDetection[];
+    }> = [];
     let totalImpact = 0;
     let highestSeverity = 'low';
-    
-    // Calculate maximum possible impact
-    const maxImpact = securityChecks.reduce((sum, check) => sum + check.impact, 0);
 
     securityChecks.forEach(check => {
-      if (check.regex.test(code)) {
-        report.push(`[${check.severity.toUpperCase()}] ${check.message}`);
-        totalImpact += check.impact;
+      const lineDetections: VulnerabilityDetection[] = lines.reduce((acc, line, index) => {
+        const matches = line.match(check.regex);
+        if (matches) {
+          acc.push({
+            line: index + 1,
+            lineContent: line.trim(),
+            matchedPattern: matches[0]
+          });
+        }
+        return acc;
+      }, [] as VulnerabilityDetection[]);
+
+      if (lineDetections.length > 0) {
+        vulnerabilities.push({ 
+          check, 
+          detections: lineDetections 
+        });
+        
+        totalImpact += check.impact * lineDetections.length;
 
         if (
           (check.severity === 'high') ||
@@ -135,20 +143,26 @@ export async function POST(req: Request) {
       }
     });
 
-    // Calculate security score (more strict scoring)
-    const securityScore = Math.max(0, Math.floor(100 - (totalImpact / maxImpact * 100)));
+    const maxPossibleImpact = securityChecks.reduce((sum, check) => sum + check.impact, 0) * 5;
+    const securityScore = Math.max(0, Math.floor(100 - (totalImpact / maxPossibleImpact * 100)));
 
-    // Adjust severity levels based on score
+    const report = vulnerabilities.flatMap(vuln => 
+      vuln.detections.map(det => 
+        `[${vuln.check.severity.toUpperCase()}] ${vuln.check.message} at Line ${det.line}: ${det.lineContent}\n   Remediation: ${vuln.check.remediation}`
+      )
+    );
+
     let severityLevel = 'Low';
-    if (securityScore < 70) severityLevel = 'High';
-    else if (securityScore < 85) severityLevel = 'Medium';
+    if (securityScore < 50) severityLevel = 'High';
+    else if (securityScore < 75) severityLevel = 'Medium';
 
     return {
       securityScore,
       report,
       severityLevel,
       totalViolations: report.length,
-      impactScore: totalImpact
+      impactScore: totalImpact,
+      vulnerabilities
     };
   };
 
