@@ -21,7 +21,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
         </header>
         <main>{children}</main> {/* Render content passed into this layout */}
         <footer>
-          <p>&copy; 2025 Secure Code Checker. All rights reserved.</p>
+          <p></p>
         </footer>
       </body>
     </html>
