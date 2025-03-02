@@ -12,11 +12,12 @@ import {
   X
 } from "lucide-react";
 import Navbar from "../components/Navbar";
+import { LucideIcon } from "lucide-react";
 
 interface SecurityParameter {
   title: string;
   description: string;
-  icon: React.ComponentType<any>;
+  icon: LucideIcon;
   severity: string;
   riskLevel: string;
   impact: string;
@@ -294,7 +295,7 @@ const Info = () => {
               <div className="info-section">
                 <h3>What Can Happen?</h3>
                 <ul className="impact-list">
-                  {selectedVulnerability.whatCanHappen.map((impact: string, index: number) => (
+                  {selectedVulnerability.whatCanHappen.map((impact, index) => (
                     <li key={index}>{impact}</li>
                   ))}
                 </ul>
@@ -303,7 +304,7 @@ const Info = () => {
               <div className="info-section">
                 <h3>Common Examples</h3>
                 <div className="code-examples">
-                  {selectedVulnerability.commonExamples.map((example: string, index: number) => (
+                  {selectedVulnerability.commonExamples.map((example, index) => (
                     <code key={index} className="code-block">{example}</code>
                   ))}
                 </div>
@@ -312,7 +313,7 @@ const Info = () => {
               <div className="info-section">
                 <h3>How to Fix</h3>
                 <ul className="fix-list">
-                  {selectedVulnerability.howToFix.map((fix: string, index: number) => (
+                  {selectedVulnerability.howToFix.map((fix, index) => (
                     <li key={index}>{fix}</li>
                   ))}
                 </ul>
