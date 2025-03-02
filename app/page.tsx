@@ -1,16 +1,18 @@
 "use client";
 import { useState } from "react";
-import { ShieldCheck, AlertTriangle, CodeIcon, FileWarning } from "lucide-react";
+import { ShieldCheck, AlertTriangle, Code as CodeIcon, FileWarning } from "lucide-react";
 import Navbar from "./components/Navbar";
+
+interface SecurityResult {
+  securityScore: number;
+  report: string[];
+  severityLevel: 'Low' | 'Medium' | 'High';
+  vulnerabilities?: Array<Record<string, unknown>>;
+}
 
 export default function Home() {
   const [code, setCode] = useState<string>("");
-  const [result, setResult] = useState<{
-    securityScore: number;
-    report: string[];
-    severityLevel: 'Low' | 'Medium' | 'High';
-    vulnerabilities?: any[];
-  } | null>(null);
+  const [result, setResult] = useState<SecurityResult | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
 
   const handleCheck = async () => {
@@ -107,7 +109,6 @@ export default function Home() {
     </div>
   );
 }
-
 
 
 // "use client";

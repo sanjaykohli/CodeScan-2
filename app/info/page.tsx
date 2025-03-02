@@ -9,12 +9,24 @@ import {
   Globe,
   Key,
   FileWarning,
-  ShieldCheck,
   X
 } from "lucide-react";
 import Navbar from "../components/Navbar";
 
-const securityParameters = [
+interface SecurityParameter {
+  title: string;
+  description: string;
+  icon: React.ComponentType<any>;
+  severity: string;
+  riskLevel: string;
+  impact: string;
+  commonExamples: string[];
+  simpleExplanation: string;
+  whatCanHappen: string[];
+  howToFix: string[];
+}
+
+const securityParameters: SecurityParameter[] = [
   {
     title: "Remote Code Execution",
     description: "Prevents hackers from running harmful code on your system",
@@ -49,7 +61,7 @@ const securityParameters = [
     impact: "Database breach and data theft",
     commonExamples: [
       "query = 'SELECT * FROM users WHERE id = ' + userInput",
-      "db.query(`DELETE FROM table WHERE id = ${id}`)"
+      "db.query(DELETE FROM table WHERE id = ${id})"
     ],
     simpleExplanation: "Think of this like someone changing your shopping list while you're not looking. They could add things you don't want or delete important items.",
     whatCanHappen: [
@@ -217,7 +229,7 @@ const securityParameters = [
 ];
 
 const Info = () => {
-  const [selectedVulnerability, setSelectedVulnerability] = useState<any>(null);
+  const [selectedVulnerability, setSelectedVulnerability] = useState<SecurityParameter | null>(null);
 
   return (
     <div className="page-container">
