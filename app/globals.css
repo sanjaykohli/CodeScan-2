@@ -629,3 +629,42 @@ body {
     max-height: 85vh;
   }
 }
+
+
+/* Add this to your CSS file */
+
+/* Issues List - Updated */
+.issues-list {
+  list-style-type: none;
+}
+
+.issue-item {
+  display: flex;
+  align-items: flex-start;
+  padding: 0.75rem;
+  margin-bottom: 0.5rem;
+  background-color: var(--color-background);
+  border-radius: 6px;
+  border: 1px solid var(--color-border);
+  transition: all var(--transition-normal);
+}
+
+.issue-item:hover {
+  transform: translateX(4px);
+  border-color: var(--color-primary);
+}
+
+.issue-icon {
+  margin-right: 0.75rem;
+  color: var(--color-danger);
+  flex-shrink: 0;
+}
+
+.issue-details {
+  overflow-wrap: break-word;
+  word-wrap: break-word;
+  word-break: break-word;
+  white-space: pre-wrap;
+  flex: 1;
+  font-size: 0.9rem;
+}

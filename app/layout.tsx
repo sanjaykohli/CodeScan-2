@@ -16,9 +16,9 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
         <title>Secure Code Checker</title>
       </head>
       <body>
-        <header>
+        {/* <header>
           <h1>Secure Code Checker</h1>
-        </header>
+        </header> */}
         <main>{children}</main> {/* Render content passed into this layout */}
         <footer>
           <p></p>
