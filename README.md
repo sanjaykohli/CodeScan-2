@@ -1,4 +1,4 @@
-# Secure Checker 🛡️
+# CodeScan 🛡️
 
 ## Overview
 Secure Checker is a web-based security code analysis tool that helps developers identify potential security vulnerabilities in their source code.
