@@ -6,7 +6,7 @@ const Navbar = () => (
     <div className="navbar-container">
       <Link href="/" className="navbar-logo">
         <ShieldCheck className="navbar-logo-icon" />
-        Security Checker
+        CodeScan
       </Link>
       <div className="navbar-links">
         <Link href="/" className="navbar-link">
