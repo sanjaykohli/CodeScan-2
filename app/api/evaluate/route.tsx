@@ -277,12 +277,13 @@ const performSecurityAnalysis = (code: string, securityChecks: SecurityCheck[]):
   }> = [];
   
   let totalImpact = 0;
+  // Initialize with the lowest severity level as a default
   let highestSeverity: 'low' | 'medium' | 'high' | 'critical' = 'low';
   const categoryBreakdown: Record<string, number> = {};
   const severityBreakdown: Record<string, number> = {};
   
   // Map of severity to numeric severity for comparison
-  const severityMap = {
+  const severityMap: Record<string, number> = {
     'low': 1,
     'medium': 2,
     'high': 3,
@@ -394,7 +395,7 @@ const performSecurityAnalysis = (code: string, securityChecks: SecurityCheck[]):
       // Update severity breakdown
       severityBreakdown[check.severity] = (severityBreakdown[check.severity] || 0) + lineDetections.length;
       
-      // Update highest severity
+      // Update highest severity using the severity map for proper comparison
       if (severityMap[check.severity] > severityMap[highestSeverity]) {
         highestSeverity = check.severity;
       }
@@ -429,7 +430,6 @@ const performSecurityAnalysis = (code: string, securityChecks: SecurityCheck[]):
     severityBreakdown
   };
 };
-
 
 // import { NextResponse } from "next/server";
 
