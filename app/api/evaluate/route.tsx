@@ -413,24 +413,36 @@ const performSecurityAnalysis = (code: string, securityChecks: SecurityCheck[]):
     )
   );
 
-  // Determine overall severity level
-  let severityLevel = 'Low';
-if ((highestSeverity as string) === 'critical' || securityScore < 40) {
-  severityLevel = 'Critical';
-}  
-else if (highestSeverity === 'high' || securityScore < 60) severityLevel = 'High';
-  else if (highestSeverity === 'medium' || securityScore < 80) severityLevel = 'Medium';
+// Define the Severity type to cover all possible values
+type Severity = 'low' | 'medium' | 'high' | 'critical';
 
-  return {
-    securityScore,
-    report,
-    severityLevel,
-    totalViolations: report.length,
-    impactScore: totalImpact,
-    vulnerabilities,
-    categoryBreakdown,
-    severityBreakdown
-  };
+// Example assumption: `highestSeverity` is set earlier in your function
+let highestSeverity: Severity = 'low'; // You should assign this based on your logic
+
+// Example assumption: `securityScore` is also defined
+let securityScore: number = 75; // Replace with your actual logic
+
+// Determine overall severity level
+let severityLevel = 'Low';
+
+if (highestSeverity === 'critical' || securityScore < 40) {
+  severityLevel = 'Critical';
+} else if (highestSeverity === 'high' || securityScore < 60) {
+  severityLevel = 'High';
+} else if (highestSeverity === 'medium' || securityScore < 80) {
+  severityLevel = 'Medium';
+}
+
+// Return statement (assumes the variables below are defined in your function)
+return {
+  securityScore,
+  report,               // make sure `report` is declared
+  severityLevel,
+  totalViolations: report.length,
+  impactScore: totalImpact, // make sure `totalImpact` is declared
+  vulnerabilities,          // make sure `vulnerabilities` is declared
+  categoryBreakdown,        // make sure `categoryBreakdown` is declared
+  severityBreakdown         // make sure `severityBreakdown` is declared
 };
 
 
