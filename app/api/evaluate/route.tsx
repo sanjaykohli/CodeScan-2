@@ -415,8 +415,10 @@ const performSecurityAnalysis = (code: string, securityChecks: SecurityCheck[]):
 
   // Determine overall severity level
   let severityLevel = 'Low';
-  if (highestSeverity === 'critical' || securityScore < 40) severityLevel = 'Critical';
-  else if (highestSeverity === 'high' || securityScore < 60) severityLevel = 'High';
+if ((highestSeverity as string) === 'critical' || securityScore < 40) {
+  severityLevel = 'Critical';
+}  
+else if (highestSeverity === 'high' || securityScore < 60) severityLevel = 'High';
   else if (highestSeverity === 'medium' || securityScore < 80) severityLevel = 'Medium';
 
   return {
