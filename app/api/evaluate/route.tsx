@@ -436,13 +436,14 @@ if (highestSeverity === 'critical' || securityScore < 40) {
 // Return statement (assumes the variables below are defined in your function)
 return {
   securityScore,
-  report,               // make sure `report` is declared
+  report,            
   severityLevel,
   totalViolations: report.length,
-  impactScore: totalImpact, // make sure `totalImpact` is declared
-  vulnerabilities,          // make sure `vulnerabilities` is declared
-  categoryBreakdown,        // make sure `categoryBreakdown` is declared
-  severityBreakdown         // make sure `severityBreakdown` is declared
+  impactScore: totalImpact, 
+  vulnerabilities,         
+  categoryBreakdown,       
+  severityBreakdown        
+  };
 };
 
 
