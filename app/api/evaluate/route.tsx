@@ -416,9 +416,6 @@ const performSecurityAnalysis = (code: string, securityChecks: SecurityCheck[]):
 // Define Severity type to match all used severity levels
 type Severity = 'low' | 'medium' | 'high' | 'critical';
 
-// `highestSeverity` should already be defined before this code, with the correct type:
-let highestSeverity: Severity; // Remove this if it's already declared
-
 // `securityScore` should already be defined earlier in the function
 let severityLevel = 'Low';
 
