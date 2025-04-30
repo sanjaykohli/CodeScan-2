@@ -413,16 +413,13 @@ const performSecurityAnalysis = (code: string, securityChecks: SecurityCheck[]):
     )
   );
 
-// Define the Severity type to cover all possible values
+// Define Severity type to match all used severity levels
 type Severity = 'low' | 'medium' | 'high' | 'critical';
 
-// Example assumption: `highestSeverity` is set earlier in your function
-let highestSeverity: Severity = 'low'; // You should assign this based on your logic
+// `highestSeverity` should already be defined before this code, with the correct type:
+let highestSeverity: Severity; // Remove this if it's already declared
 
-// Example assumption: `securityScore` is also defined
-let securityScore: number = 75; // Replace with your actual logic
-
-// Determine overall severity level
+// `securityScore` should already be defined earlier in the function
 let severityLevel = 'Low';
 
 if (highestSeverity === 'critical' || securityScore < 40) {
@@ -433,19 +430,18 @@ if (highestSeverity === 'critical' || securityScore < 40) {
   severityLevel = 'Medium';
 }
 
-// Return statement (assumes the variables below are defined in your function)
+// Final return — make sure all referenced variables are defined
 return {
-  securityScore,
-  report,            
-  severityLevel,
+  securityScore,              // number
+  report,                     // array
+  severityLevel,              // 'Low' | 'Medium' | 'High' | 'Critical'
   totalViolations: report.length,
-  impactScore: totalImpact, 
-  vulnerabilities,         
-  categoryBreakdown,       
-  severityBreakdown        
-  };
+  impactScore: totalImpact,   // number
+  vulnerabilities,            // array
+  categoryBreakdown,          // object or appropriate type
+  severityBreakdown           // object or appropriate type
 };
-
+};
 
 
 // import { NextResponse } from "next/server";
