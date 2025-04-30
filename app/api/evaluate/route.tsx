@@ -21,7 +21,7 @@ interface VulnerabilityDetection {
 interface SecurityAnalysisResult {
   securityScore: number;
   report: string[];
-  severityLevel: string;
+  severityLevel: 'Low' | 'Medium' | 'High' | 'Critical'; // Specific string literals
   totalViolations: number;
   impactScore: number;
   vulnerabilities: Array<{
@@ -414,13 +414,13 @@ const performSecurityAnalysis = (code: string, securityChecks: SecurityCheck[]):
   );
 
   // Determine severity level based on score and highest severity
-  let severityLevel = 'Low';
+  let severityLevel: 'Low' | 'Medium' | 'High' | 'Critical' = 'Low';
 
-  if (highestSeverity === 'critical' || securityScore < 40) {
+  if ((highestSeverity as string) === 'critical' || securityScore < 40) {
     severityLevel = 'Critical';
-  } else if (highestSeverity === 'high' || securityScore < 60) {
+  } else if ((highestSeverity as string) === 'high' || securityScore < 60) {
     severityLevel = 'High';
-  } else if (highestSeverity === 'medium' || securityScore < 80) {
+  } else if ((highestSeverity as string) === 'medium' || securityScore < 80) {
     severityLevel = 'Medium';
   }
 
