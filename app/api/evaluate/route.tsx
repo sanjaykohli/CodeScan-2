@@ -32,6 +32,12 @@ interface SecurityAnalysisResult {
   severityBreakdown: Record<string, number>;
 }
 
+interface CodeBlock {
+  content: string;
+  startLine: number;
+  endLine: number;
+}
+
 export async function POST(req: Request) {
   try {
     const body = await req.json();
@@ -307,7 +313,7 @@ const performSecurityAnalysis = (code: string, securityChecks: SecurityCheck[]):
   };
 
   // Process multiline code blocks
-  const codeBlocks = [];
+  const codeBlocks: CodeBlock[] = [];
   let currentBlock = '';
   
   for (let i = 0; i < lines.length; i++) {
