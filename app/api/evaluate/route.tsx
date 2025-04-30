@@ -413,33 +413,29 @@ const performSecurityAnalysis = (code: string, securityChecks: SecurityCheck[]):
     )
   );
 
-// Define Severity type to match all used severity levels
-type Severity = 'low' | 'medium' | 'high' | 'critical';
+  // Determine severity level based on score and highest severity
+  let severityLevel = 'Low';
 
-// `securityScore` should already be defined earlier in the function
-let severityLevel = 'Low';
+  if (highestSeverity === 'critical' || securityScore < 40) {
+    severityLevel = 'Critical';
+  } else if (highestSeverity === 'high' || securityScore < 60) {
+    severityLevel = 'High';
+  } else if (highestSeverity === 'medium' || securityScore < 80) {
+    severityLevel = 'Medium';
+  }
 
-if (highestSeverity === 'critical' || securityScore < 40) {
-  severityLevel = 'Critical';
-} else if (highestSeverity === 'high' || securityScore < 60) {
-  severityLevel = 'High';
-} else if (highestSeverity === 'medium' || securityScore < 80) {
-  severityLevel = 'Medium';
-}
-
-// Final return — make sure all referenced variables are defined
-return {
-  securityScore,              // number
-  report,                     // array
-  severityLevel,              // 'Low' | 'Medium' | 'High' | 'Critical'
-  totalViolations: report.length,
-  impactScore: totalImpact,   // number
-  vulnerabilities,            // array
-  categoryBreakdown,          // object or appropriate type
-  severityBreakdown           // object or appropriate type
+  // Final return — make sure all referenced variables are defined
+  return {
+    securityScore,              // number
+    report,                     // array
+    severityLevel,              // 'Low' | 'Medium' | 'High' | 'Critical'
+    totalViolations: report.length,
+    impactScore: totalImpact,   // number
+    vulnerabilities,            // array
+    categoryBreakdown,          // object or appropriate type
+    severityBreakdown           // object or appropriate type
+  };
 };
-};
-
 
 // import { NextResponse } from "next/server";
 
