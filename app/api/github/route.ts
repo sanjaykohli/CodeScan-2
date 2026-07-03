@@ -4,7 +4,8 @@ import { securityChecks, performSecurityAnalysis } from "@/lib/securityAnalysis"
 import { rateLimit } from "@/lib/rateLimit";
 import type { VulnerabilityReportItem } from "@/types";
 
-const CODE_FILE_EXTENSIONS = /\.(js|jsx|ts|tsx|py|java|cpp|c|go|rb|php|html|css|scss|less|json|yml|yaml|xml|md|sh|config)$/i;
+const CODE_FILE_EXTENSIONS = /\.(js|jsx|ts|tsx|py|java|cpp|c|go|rb|php|html|css|scss|less|json|yml|yaml|xml|sh|config)$/i;
+const EXCLUDED_FILE_PATTERNS = /(__tests__|\.test\.[jt]sx?$|\.spec\.[jt]sx?$|package-lock\.json$|yarn\.lock$|pnpm-lock\.yaml$|\.min\.js$|\.d\.ts$)/i;
 const MAX_FILE_SIZE_BYTES = 500_000; // 500 KB
 const BATCH_SIZE = 5;
 const SAFE_NAME_REGEX = /^[A-Za-z0-9_.-]+$/;
@@ -82,6 +83,7 @@ export async function POST(req: NextRequest) {
       (item) =>
         item.type === "blob" &&
         CODE_FILE_EXTENSIONS.test(item.path ?? "") &&
+        !EXCLUDED_FILE_PATTERNS.test(item.path ?? "") &&
         (item.size ?? 0) <= MAX_FILE_SIZE_BYTES
     );
 

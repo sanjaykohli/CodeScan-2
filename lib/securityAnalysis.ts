@@ -166,7 +166,8 @@ export const securityChecks: SecurityCheck[] = [
     remediation: "Avoid using eval, exec, or executing user-controlled input. Use safe alternatives like JSON.parse() for parsing.",
     falsePositivePatterns: [
       /\/\/.*eval/i,
-      /['"`].*eval.*['"`]/i
+      /['"`].*eval.*['"`]/i,
+      /commonExamples\s*:/i
     ]
   },
   {
@@ -177,6 +178,9 @@ export const securityChecks: SecurityCheck[] = [
     category: 'security',
     impact: 25,
     remediation: "Never pass unsanitized user input to system commands. Use command arguments array instead of shell string concatenation.",
+    falsePositivePatterns: [
+      /commonExamples\s*:/i
+    ]
   },
   {
     name: "Prototype Pollution",
@@ -197,6 +201,10 @@ export const securityChecks: SecurityCheck[] = [
     category: 'security',
     impact: 20,
     remediation: "Use parameterized queries, prepared statements, or ORM libraries. Never concatenate user input into SQL queries.",
+    falsePositivePatterns: [
+      /commonExamples\s*:/i,
+      /it\s*\(\s*['"`]detects/i
+    ]
   },
   {
     name: "NoSQL Injection",
@@ -206,6 +214,9 @@ export const securityChecks: SecurityCheck[] = [
     category: 'security',
     impact: 18,
     remediation: "Use parameterized values or ORM sanitization. Avoid constructing query objects with string concatenation or template literals.",
+    falsePositivePatterns: [
+      /commonExamples\s*:/i
+    ]
   },
   {
     name: "Sensitive Data Exposure",
@@ -215,6 +226,9 @@ export const securityChecks: SecurityCheck[] = [
     category: 'security',
     impact: 18,
     remediation: "Use environment variables, secure vaults, or encryption. Never hardcode sensitive information.",
+    falsePositivePatterns: [
+      /commonExamples\s*:/i
+    ]
   },
   {
     name: "XSS Vulnerability",
@@ -227,7 +241,7 @@ export const securityChecks: SecurityCheck[] = [
   },
   {
     name: "Weak Cryptography",
-    regex: /(?<!\w)(MD5|SHA1|DES|RC4|ECB|createHash\(['"](md5|sha1)['"]\)|crypto\.createCipher\(['"](des|rc4)['"]\)|crypto\.createCipheriv\(['"](des-ecb|rc4)['"]\))/i,
+    regex: /(?<!\w)(MD5|SHA1|DES|RC4|ECB)(?!\w)|createHash\(['"](md5|sha1)['"]\)|crypto\.createCipher\(['"](des|rc4)['"]\)|crypto\.createCipheriv\(['"](des-ecb|rc4)['"]\)/i,
     message: "Weak Cryptographic Method",
     severity: 'high',
     category: 'security',
@@ -242,6 +256,9 @@ export const securityChecks: SecurityCheck[] = [
     category: 'security',
     impact: 17,
     remediation: "Validate and sanitize file paths. Use path.normalize() and check for directory traversal sequences. Use built-in path libraries.",
+    falsePositivePatterns: [
+      /commonExamples\s*:/i
+    ]
   },
   {
     name: "Regular Expression DoS",
@@ -312,15 +329,15 @@ export const securityChecks: SecurityCheck[] = [
   // LOW VULNERABILITIES
   {
     name: "Debug Statements",
-    regex: /(?<!\w)(console\.(log|debug|info|warn|error)|print\s*\(|alert\(|debugger)/i,
+    regex: /(?<!\w)(console\.(log|debug|info)|print\s*\(|alert\(|debugger)/i,
     message: "Production Debug Statements",
     severity: 'low',
     category: 'performance',
     impact: 5,
     remediation: "Remove all console logs and debugging statements before production deployment.",
     falsePositivePatterns: [
-      /\/\/.*console\.(log|debug|info|warn|error)/i,
-      /['"`].*console\.(log|debug|info|warn|error).*['"`]/i
+      /\/\/.*console\.(log|debug|info)/i,
+      /['"`].*console\.(log|debug|info).*['"`]/i
     ]
   },
   {
@@ -358,5 +375,8 @@ export const securityChecks: SecurityCheck[] = [
     category: 'privacy',
     impact: 10,
     remediation: "Never log personal or sensitive information. Use data masking or sanitization before logging.",
+    falsePositivePatterns: [
+      /commonExamples\s*:/i
+    ]
   }
 ];
