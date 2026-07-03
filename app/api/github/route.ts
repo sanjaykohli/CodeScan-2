@@ -96,6 +96,7 @@ export async function POST(req: NextRequest) {
     const report: VulnerabilityReportItem[] = [];
     let vulnerabilityCount = 0;
     const fileScores: number[] = [];
+    let fetchErrorCount = 0;
 
     // Process files in batches
     for (let i = 0; i < codeFiles.length; i += BATCH_SIZE) {
@@ -104,16 +105,19 @@ export async function POST(req: NextRequest) {
         batch.map(async (file) => {
           const filePath = file.path ?? "";
           try {
-            const { data: fileContent } = await octokit.repos.getContent({
+            const { data: fileData } = await octokit.repos.getContent({
               owner,
               repo,
               path: filePath,
-              mediaType: { format: "raw" },
             });
 
-            if (typeof fileContent !== "string") {
+            // getContent returns an array for directories; skip those
+            if (Array.isArray(fileData) || fileData.type !== "file" || !fileData.content) {
               return null;
             }
+
+            // content is always base64-encoded in the standard response
+            const fileContent = Buffer.from(fileData.content, "base64").toString("utf-8");
 
             const analysis = performSecurityAnalysis(fileContent, securityChecks);
             const vulnerabilities: VulnerabilityReportItem[] = [];
@@ -133,8 +137,9 @@ export async function POST(req: NextRequest) {
 
             scannedFiles.push(filePath);
             return { securityScore: analysis.securityScore, vulnerabilities };
-          } catch {
-            // File failed to download — exclude from scoring entirely
+          } catch (err) {
+            fetchErrorCount++;
+            console.error(`Failed to fetch ${filePath}:`, err instanceof Error ? err.message : err);
             return null;
           }
         })
@@ -148,14 +153,18 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    // Score: weight toward the worst file so a single critical vuln isn't buried
-    let securityScore = 100;
-    if (fileScores.length > 0) {
-      const avgScore = fileScores.reduce((a, b) => a + b, 0) / fileScores.length;
-      const worstScore = Math.min(...fileScores);
-      // Blend: 60% average + 40% worst file, floor at 0
-      securityScore = Math.max(0, Math.min(100, Math.round(avgScore * 0.6 + worstScore * 0.4)));
+    if (fileScores.length === 0) {
+      const reason = codeFiles.length === 0
+        ? "No scannable files found in this repository."
+        : `All ${codeFiles.length} file(s) failed to download (${fetchErrorCount} fetch error(s)).`;
+      return NextResponse.json({ error: reason }, { status: 422 });
     }
+
+    // Score: weight toward the worst file so a single critical vuln isn't buried
+    const avgScore = fileScores.reduce((a, b) => a + b, 0) / fileScores.length;
+    const worstScore = Math.min(...fileScores);
+    // Blend: 60% average + 40% worst file, floor at 0
+    const securityScore = Math.max(0, Math.min(100, Math.round(avgScore * 0.6 + worstScore * 0.4)));
 
     // Determine severity from score AND highest-severity finding
     const highestFindingSeverity = report.reduce((acc, item) => {

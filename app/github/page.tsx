@@ -6,12 +6,32 @@ import VulnerabilityCard from "../components/VulnerabilityCard";
 import FileListModal from "../components/FileListModal";
 import type { GitHubScanResult } from "@/types";
 
+const SEVERITY_ORDER: Record<string, number> = { critical: 0, high: 1, medium: 2, low: 3 };
+const ALL_SEVERITIES = ["critical", "high", "medium", "low"] as const;
+type Severity = typeof ALL_SEVERITIES[number];
+
+const SEVERITY_LABEL: Record<Severity, string> = {
+  critical: "Critical",
+  high: "High",
+  medium: "Medium",
+  low: "Low",
+};
+
 export default function GitHubPage() {
   const [repoUrl, setRepoUrl] = useState<string>("");
   const [result, setResult] = useState<GitHubScanResult | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
   const [showFileList, setShowFileList] = useState<boolean>(false);
+  const [activeFilters, setActiveFilters] = useState<Set<Severity>>(new Set(ALL_SEVERITIES));
+
+  const toggleFilter = (sev: Severity) => {
+    setActiveFilters((prev) => {
+      const next = new Set(prev);
+      next.has(sev) ? next.delete(sev) : next.add(sev);
+      return next;
+    });
+  };
 
   const isValidGitHubUrl = (url: string) => {
     return url.startsWith("https://github.com/") && url.split("/").length >= 5;
@@ -26,6 +46,7 @@ export default function GitHubPage() {
     setLoading(true);
     setResult(null);
     setError(null);
+    setActiveFilters(new Set(ALL_SEVERITIES));
 
     try {
       const response = await fetch("/api/github", {
@@ -169,21 +190,55 @@ export default function GitHubPage() {
                   <p>No security vulnerabilities detected!</p>
                   <p className="subtext">Great job maintaining security best practices</p>
                 </div>
-              ) : (
-                <div className="vulnerabilities-grid">
-                  {result.report.map((item, index) => (
-                    <VulnerabilityCard
-                      key={index}
-                      filePath={item.filePath}
-                      line={item.line}
-                      codeSnippet={item.codeSnippet}
-                      message={item.message}
-                      severity={item.severity}
-                      remediation={item.remediation}
-                    />
-                  ))}
-                </div>
-              )}
+              ) : (() => {
+                const sortedReport = [...result.report].sort(
+                  (a, b) => (SEVERITY_ORDER[a.severity] ?? 99) - (SEVERITY_ORDER[b.severity] ?? 99)
+                );
+                const filteredReport = sortedReport.filter((item) =>
+                  activeFilters.has(item.severity as Severity)
+                );
+                const counts = ALL_SEVERITIES.reduce((acc, sev) => {
+                  acc[sev] = result.report.filter((i) => i.severity === sev).length;
+                  return acc;
+                }, {} as Record<Severity, number>);
+
+                return (
+                  <>
+                    <div className="severity-filters">
+                      {ALL_SEVERITIES.filter((sev) => counts[sev] > 0).map((sev) => (
+                        <button
+                          key={sev}
+                          onClick={() => toggleFilter(sev)}
+                          className={`severity-filter-btn sev-${sev}${activeFilters.has(sev) ? "" : " inactive"}`}
+                        >
+                          {SEVERITY_LABEL[sev]}
+                          <span className="severity-filter-count">{counts[sev]}</span>
+                        </button>
+                      ))}
+                    </div>
+
+                    {filteredReport.length === 0 ? (
+                      <div className="no-issues">
+                        <p>No vulnerabilities match the selected filters.</p>
+                      </div>
+                    ) : (
+                      <div className="vulnerabilities-grid">
+                        {filteredReport.map((item, index) => (
+                          <VulnerabilityCard
+                            key={index}
+                            filePath={item.filePath}
+                            line={item.line}
+                            codeSnippet={item.codeSnippet}
+                            message={item.message}
+                            severity={item.severity}
+                            remediation={item.remediation}
+                          />
+                        ))}
+                      </div>
+                    )}
+                  </>
+                );
+              })()}
             </div>
           </div>
         )}
