@@ -1,10 +1,8 @@
-// /app/layout.tsx
-
 import React from 'react';
-import './globals.css'; // Add global styles
+import './globals.css';
 
 interface LayoutProps {
-  children: React.ReactNode; // This represents the content passed into the layout
+  children: React.ReactNode;
 }
 
 const Layout: React.FC<LayoutProps> = ({ children }) => {
@@ -13,16 +11,12 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
       <head>
         <meta charSet="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>CodeScan</title>
+        <meta name="description" content="Static security analysis for code snippets and GitHub repositories. Instant vulnerability detection with remediation guidance." />
+        <title>CodeScan — Security Analyzer</title>
+        <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
       </head>
       <body>
-        {/* <header>
-          <h1>Secure Code Checker</h1>
-        </header> */}
-        <main>{children}</main> {/* Render content passed into this layout */}
-        <footer>
-          <p></p>
-        </footer>
+        <main>{children}</main>
       </body>
     </html>
   );

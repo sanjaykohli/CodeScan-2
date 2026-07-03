@@ -1,45 +1,17 @@
 "use client";
-import { useState, useMemo } from "react";
+import { useState } from "react";
 import { Github, ShieldCheck, AlertTriangle, FileWarning, Code, FileText } from "lucide-react";
 import Navbar from "../components/Navbar";
 import VulnerabilityCard from "../components/VulnerabilityCard";
 import FileListModal from "../components/FileListModal";
-
-interface VulnerabilityReportItem {
-  filePath: string;
-  line: number;
-  codeSnippet: string;
-  message: string;
-  severity: string;
-  remediation: string;
-}
-
-interface SecurityResult {
-  securityScore: number;
-  report: VulnerabilityReportItem[];
-  severityLevel: 'Low' | 'Medium' | 'High' | 'Critical';
-  vulnerabilityCount: number;
-  filesScanned: number;
-  scannedFiles: string[];
-  repoName: string;
-}
+import type { GitHubScanResult } from "@/types";
 
 export default function GitHubPage() {
   const [repoUrl, setRepoUrl] = useState<string>("");
-  const [result, setResult] = useState<SecurityResult | null>(null);
+  const [result, setResult] = useState<GitHubScanResult | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
   const [showFileList, setShowFileList] = useState<boolean>(false);
-  
-  // For progress indicator
-  const [progress, setProgress] = useState<number>(0);
-  const progressMessage = useMemo(() => {
-    if (progress < 20) return "Fetching repository structure...";
-    if (progress < 40) return "Scanning files...";
-    if (progress < 60) return "Analyzing code patterns...";
-    if (progress < 80) return "Checking security vulnerabilities...";
-    return "Finalizing results...";
-  }, [progress]);
 
   const isValidGitHubUrl = (url: string) => {
     return url.startsWith("https://github.com/") && url.split("/").length >= 5;
@@ -47,14 +19,13 @@ export default function GitHubPage() {
 
   const handleCheck = async () => {
     if (!isValidGitHubUrl(repoUrl)) {
-      setError("Please enter a valid GitHub repository URL");
+      setError("Please enter a valid GitHub repository URL (https://github.com/owner/repo)");
       return;
     }
 
     setLoading(true);
     setResult(null);
     setError(null);
-    setProgress(10);
 
     try {
       const response = await fetch("/api/github", {
@@ -68,17 +39,13 @@ export default function GitHubPage() {
         throw new Error(errorData.error || "Error analyzing repository");
       }
 
-      const data = await response.json();
+      const data: GitHubScanResult = await response.json();
       setResult(data);
-      setProgress(100);
-    } catch (error: any) {
-      console.error("Error:", error);
-      setError(error.message || "Failed to analyze repository");
-      setProgress(0);
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : "Failed to analyze repository";
+      setError(message);
     } finally {
       setLoading(false);
-      // Reset progress after a delay
-      setTimeout(() => setProgress(0), 2000);
     }
   };
 
@@ -90,7 +57,7 @@ export default function GitHubPage() {
           <h1 className="page-title">
             <Github className="title-icon" /> GitHub Repository Security Scan
           </h1>
-          
+
           <div className="input-group">
             <input
               type="url"
@@ -99,6 +66,7 @@ export default function GitHubPage() {
               onChange={(e) => setRepoUrl(e.target.value)}
               placeholder="https://github.com/username/repository"
               disabled={loading}
+              onKeyDown={(e) => e.key === "Enter" && !loading && handleCheck()}
             />
             <button
               onClick={handleCheck}
@@ -107,8 +75,8 @@ export default function GitHubPage() {
             >
               {loading ? (
                 <div className="flex items-center">
-                  <span className="mr-2">Analyzing...</span>
-                  <div className="spinner"></div>
+                  <div className="spinner mr-2"></div>
+                  <span>Scanning...</span>
                 </div>
               ) : (
                 <>
@@ -118,43 +86,43 @@ export default function GitHubPage() {
               )}
             </button>
           </div>
-          
+
           {loading && (
-            <div className="mt-4">
-              <div className="w-full bg-gray-700 rounded-full h-2.5">
-                <div 
-                  className="bg-blue-600 h-2.5 rounded-full transition-all duration-300" 
-                  style={{ width: `${progress}%` }}
-                ></div>
+            <div className="scan-progress">
+              <div className="scan-progress-bar">
+                <div className="scan-progress-fill"></div>
               </div>
-              <div className="text-sm text-gray-400 mt-2">
-                {progressMessage}
-              </div>
+              <p className="scan-progress-text">
+                Fetching and analyzing repository files — this may take a moment for large repos...
+              </p>
             </div>
           )}
-          
+
           {error && (
             <div className="error-message">
               <AlertTriangle className="error-icon" />
               {error}
             </div>
           )}
-          
+
           <div className="instructions">
             <p>Enter a public GitHub repository URL to scan for security vulnerabilities</p>
             <p>Example: https://github.com/facebook/react</p>
           </div>
         </div>
-        
+
         {result && (
           <div className="results-card">
             <div className="results-header">
               <h3 className="results-title">
-                <FileWarning className="results-icon" /> Security Report for: {result.repoName}
+                <FileWarning className="results-icon" /> Security Report: {result.repoName}
               </h3>
               <div className="summary-stats">
                 <div className="stat-card">
-                  <div className={`stat-value ${result.securityScore >= 80 ? 'text-green-500' : result.securityScore >= 50 ? 'text-yellow-500' : 'text-red-500'}`}>
+                  <div className={`stat-value ${
+                    result.securityScore >= 80 ? 'score-low' :
+                    result.securityScore >= 50 ? 'score-medium' : 'score-high'
+                  }`}>
                     {result.securityScore.toFixed(2)}%
                   </div>
                   <div className="stat-label">Security Score</div>
@@ -163,42 +131,43 @@ export default function GitHubPage() {
                   <div className="stat-value">{result.vulnerabilityCount}</div>
                   <div className="stat-label">Vulnerabilities</div>
                 </div>
-                <div 
-                  className="stat-card cursor-pointer hover:bg-gray-800 transition-colors"
+                <div
+                  className="stat-card stat-card-clickable"
                   onClick={() => setShowFileList(true)}
+                  title="Click to see all scanned files"
                 >
                   <div className="stat-value">{result.filesScanned}</div>
-                  <div className="stat-label flex items-center justify-center">
-                    <FileText className="mr-1" size={14} />
+                  <div className="stat-label">
+                    <FileText size={14} className="stat-label-icon" />
                     Files Scanned
                   </div>
                 </div>
               </div>
             </div>
-            
+
             <div className="severity-summary">
               <span className={`risk-label ${result.severityLevel.toLowerCase()}-risk`}>
                 {result.severityLevel} Risk
               </span>
               <div className="severity-description">
-                {result.severityLevel === 'Critical' && "Immediate action required - critical vulnerabilities detected"}
-                {result.severityLevel === 'High' && "High risk - urgent remediation needed"}
-                {result.severityLevel === 'Medium' && "Medium risk - review recommended"}
-                {result.severityLevel === 'Low' && "Low risk - maintain security best practices"}
+                {result.severityLevel === 'Critical' && "Immediate action required — critical vulnerabilities detected"}
+                {result.severityLevel === 'High' && "High risk — urgent remediation needed"}
+                {result.severityLevel === 'Medium' && "Medium risk — review and remediation recommended"}
+                {result.severityLevel === 'Low' && "Low risk — maintain security best practices"}
               </div>
             </div>
-            
+
             <div className="issues-container">
-              <h4 className="flex items-center">
-                <Code className="mr-2" size={20} />
-                Detected Vulnerabilities:
+              <h4 className="vulnerabilities-heading">
+                <Code size={20} />
+                Detected Vulnerabilities
               </h4>
-              
+
               {result.report.length === 0 ? (
                 <div className="no-issues">
                   <div className="success-icon">✓</div>
                   <p>No security vulnerabilities detected!</p>
-                  <p className="subtext">Good job maintaining security best practices</p>
+                  <p className="subtext">Great job maintaining security best practices</p>
                 </div>
               ) : (
                 <div className="vulnerabilities-grid">
@@ -218,12 +187,12 @@ export default function GitHubPage() {
             </div>
           </div>
         )}
-        
+
         {result && (
-          <FileListModal 
-            files={result.scannedFiles} 
-            isOpen={showFileList} 
-            onClose={() => setShowFileList(false)} 
+          <FileListModal
+            files={result.scannedFiles}
+            isOpen={showFileList}
+            onClose={() => setShowFileList(false)}
           />
         )}
       </div>

@@ -34,7 +34,7 @@ export const performSecurityAnalysis = (code: string, securityChecks: SecurityCh
   }> = [];
   
   let totalImpact = 0;
-  let highestSeverity: 'low' | 'medium' | 'high' | 'critical' = 'low';
+  let highestSeverity: string = 'low';
   const categoryBreakdown: Record<string, number> = {};
   const severityBreakdown: Record<string, number> = {};
   
@@ -48,25 +48,27 @@ export const performSecurityAnalysis = (code: string, securityChecks: SecurityCh
   // Process multiline code blocks
   const codeBlocks: CodeBlock[] = [];
   let currentBlock = '';
-  
+  let blockStartLine = 1;
+
   for (let i = 0; i < lines.length; i++) {
     const line = lines[i];
+    if (currentBlock === '') blockStartLine = i + 1;
     currentBlock += line + '\n';
-    
+
     if (line.trim().endsWith(';') || line.trim().endsWith('}') || line.trim().endsWith('{')) {
       codeBlocks.push({
         content: currentBlock,
-        startLine: i - currentBlock.split('\n').length + 2,
+        startLine: blockStartLine,
         endLine: i + 1
       });
       currentBlock = '';
     }
   }
-  
+
   if (currentBlock.trim()) {
     codeBlocks.push({
       content: currentBlock,
-      startLine: lines.length - currentBlock.split('\n').length + 1,
+      startLine: blockStartLine,
       endLine: lines.length
     });
   }
